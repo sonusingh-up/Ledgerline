@@ -11,9 +11,9 @@ export function DashboardClient({ accountId, accountType }: { accountId: string,
     <>
       <button 
         onClick={() => setShowModal(true)}
-        className="flex items-center gap-[6px] bg-[var(--color-accent)] text-[#0E1318] border-none rounded-[8px] p-[9px_16px] font-body font-semibold text-[13.5px] cursor-pointer shadow-[0_2px_8px_rgba(110,140,250,0.25)] hover:opacity-90 transition-opacity"
+        className="flex items-center gap-1.5 bg-[#6E8CFA] hover:bg-[#5C7CFA] text-white border-none rounded-lg px-4 py-2 font-body font-semibold text-xs cursor-pointer shadow-md transition-all active:scale-95"
       >
-        <Plus size={15} /> Log Trade
+        <Plus size={15} className="stroke-[2.5]" /> Log Trade
       </button>
 
       {showModal && (

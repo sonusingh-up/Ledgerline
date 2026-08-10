@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import {
   AreaChart,
   Area,
@@ -8,76 +9,125 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-} from "recharts"
+} from 'recharts'
 import { fmtMoney } from '@/lib/calculations'
 
-import { useMemo } from 'react'
+export interface EquityChartProps {
+  data: { x: number; equity: number; date?: string }[]
+}
 
-export function EquityChart({ data }: { data: { x: number, equity: number }[] }) {
-  if (!data || data.length === 0) return null
-  
-  const startEq = data[0]?.equity || 0
-  const endEq = data[data.length - 1]?.equity || 0
+export function EquityChart({ data }: EquityChartProps) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="w-full h-[280px] bg-[var(--color-surface-alt)]/50 rounded-xl border border-[var(--color-border-soft)] flex items-center justify-center text-xs text-[var(--color-muted)] font-mono">
+        No equity curve data available.
+      </div>
+    )
+  }
+
+  const startEq = data[0]?.equity || 100000
+  const endEq = data[data.length - 1]?.equity || startEq
   const pctChange = startEq > 0 ? ((endEq - startEq) / startEq) * 100 : 0
   const isProfit = endEq >= startEq
 
-  // Calculate dynamic min/max for YAxis to look like the reference chart
-  const minEq = Math.min(...data.map(d => d.equity))
-  const maxEq = Math.max(...data.map(d => d.equity))
-  const domainPadding = (maxEq - minEq) * 0.1
+  // Calculate dynamic min/max for Y-Axis domain with safe padding
+  const equities = data.map((d) => d.equity)
+  const minEq = Math.min(...equities)
+  const maxEq = Math.max(...equities)
+  const diff = maxEq - minEq
+  const domainPadding = diff > 0 ? diff * 0.15 : startEq * 0.05
+
+  const yMin = Math.floor(minEq - domainPadding)
+  const yMax = Math.ceil(maxEq + domainPadding)
 
   return (
-    <div className="flex-1 bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[14px] p-[24px] flex flex-col shadow-sm">
-      <div className="flex items-center gap-[12px] mb-[12px]">
-        <span className="text-[13px] font-medium text-[var(--color-text)]">P&L</span>
-        <span className="text-[13px] text-[var(--color-muted)]">Balance</span>
-      </div>
-      
-      <div className="flex items-end gap-[12px] mb-[40px]">
-        <span className="font-display text-[32px] font-bold text-white leading-none">{fmtMoney(endEq)}</span>
-        <span className={`text-[14px] font-mono leading-none mb-[4px] ${isProfit ? 'text-[var(--color-profit)]' : 'text-[var(--color-loss)]'}`}>
-          {isProfit ? '+' : ''}{pctChange.toFixed(2)}%
+    <div className="w-full flex flex-col gap-3">
+      {/* Header Info */}
+      <div className="flex items-baseline justify-between">
+        <div className="flex items-baseline gap-2">
+          <span className="font-display text-2xl font-bold text-white tracking-tight leading-none">
+            {fmtMoney(endEq)}
+          </span>
+          <span
+            className={`text-xs font-mono font-bold leading-none ${
+              isProfit ? 'text-[var(--color-profit)]' : 'text-[var(--color-loss)]'
+            }`}
+          >
+            {isProfit ? '+' : ''}
+            {pctChange.toFixed(2)}%
+          </span>
+        </div>
+
+        <span className="text-xs text-[var(--color-muted-dark)] font-mono">
+          {data.length} Data Points
         </span>
       </div>
 
-      <div className="w-full flex-1 min-h-[260px]">
+      {/* SVG Equity Area Chart */}
+      <div className="w-full h-[260px] relative">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
-              <linearGradient id="eqFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={isProfit ? 'rgba(79,168,138,0.3)' : 'rgba(196,97,74,0.3)'} />
-                <stop offset="100%" stopColor={isProfit ? 'rgba(79,168,138,0)' : 'rgba(196,97,74,0)'} />
+              <linearGradient id="eqFillGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="0%"
+                  stopColor={isProfit ? '#4FA88A' : '#C4614A'}
+                  stopOpacity={0.35}
+                />
+                <stop
+                  offset="100%"
+                  stopColor={isProfit ? '#4FA88A' : '#C4614A'}
+                  stopOpacity={0.01}
+                />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="var(--color-border-soft)" vertical={false} opacity={0.5} />
+
+            <CartesianGrid
+              stroke="var(--color-border-soft)"
+              vertical={false}
+              strokeDasharray="3 3"
+              opacity={0.5}
+            />
+
             <XAxis dataKey="x" hide />
-            <YAxis 
+
+            <YAxis
               orientation="right"
-              tick={{ fill: "var(--color-muted-dark)", fontSize: 10, fontFamily: "var(--font-ibm-plex-mono)" }} 
-              axisLine={false} 
-              tickLine={false} 
-              domain={[Math.floor(minEq - domainPadding), Math.ceil(maxEq + domainPadding)]} 
-              tickCount={6}
+              tick={{ fill: '#8B96A6', fontSize: 10, fontFamily: 'var(--font-ibm-plex-mono)' }}
+              axisLine={false}
+              tickLine={false}
+              domain={[yMin, yMax]}
+              tickCount={5}
               tickFormatter={(v) => {
                 if (Math.abs(v) >= 1000) {
                   const k = v / 1000
-                  return Number.isInteger(k) ? `${k}k` : `${k.toFixed(1)}k`
+                  return `$${k.toFixed(1)}k`
                 }
-                return String(Math.round(v))
+                return `$${Math.round(v)}`
               }}
             />
-            <Tooltip 
-              contentStyle={{ background: "var(--color-surface-alt)", border: "1px solid var(--color-border)", borderRadius: 8, fontFamily: "var(--font-ibm-plex-mono)", fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }} 
-              labelFormatter={() => ""} 
-              formatter={(v: any) => [fmtMoney(Number(v)), "Equity"]} 
+
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'var(--color-surface-alt)',
+                borderColor: 'var(--color-border)',
+                borderRadius: '8px',
+                fontFamily: 'var(--font-ibm-plex-mono)',
+                fontSize: '12px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                color: '#E7EAEE',
+              }}
+              labelFormatter={(x) => `Trade #${x}`}
+              formatter={(val: any) => [fmtMoney(Number(val)), 'Account Equity']}
             />
-            <Area 
-              type="linear" 
-              dataKey="equity" 
-              stroke={isProfit ? "var(--color-profit)" : "var(--color-loss)"} 
-              strokeWidth={2} 
-              fill="url(#eqFill)" 
-              animationDuration={1000}
+
+            <Area
+              type="monotone"
+              dataKey="equity"
+              stroke={isProfit ? '#4FA88A' : '#C4614A'}
+              strokeWidth={2.5}
+              fill="url(#eqFillGradient)"
+              animationDuration={800}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -85,3 +135,5 @@ export function EquityChart({ data }: { data: { x: number, equity: number }[] })
     </div>
   )
 }
+
+export default EquityChart

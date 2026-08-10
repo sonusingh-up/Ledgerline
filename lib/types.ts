@@ -77,3 +77,13 @@ export interface PropStatus {
   profitTargetDollars: number
   profitProgressPct: number
 }
+
+export interface JournalEntry {
+  id: string
+  user_id: string
+  entry_date: string
+  content: string | null
+  mood: number | null
+  created_at: string
+  updated_at: string
+}
