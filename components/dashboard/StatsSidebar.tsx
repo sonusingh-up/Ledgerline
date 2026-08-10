@@ -106,7 +106,7 @@ export function StatsSidebar({
           </span>
           {propStatus && propStatus.todaysPnL !== 0 && (
             <span className={`text-[13px] font-mono mb-[5px] ${propStatus.todaysPnL >= 0 ? 'text-[var(--color-profit)]' : 'text-[var(--color-loss)]'}`}>
-              {propStatus.todaysPnL >= 0 ? '+' : ''}{((propStatus.todaysPnL / stats.endEquity) * 100).toFixed(2)}%
+              {propStatus.todaysPnL >= 0 ? '+' : ''}{((propStatus.todaysPnL / (stats.equityCurve[0]?.equity || 1)) * 100).toFixed(2)}%
             </span>
           )}
         </div>
