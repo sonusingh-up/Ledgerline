@@ -49,10 +49,10 @@ export function DrawdownGauge({
                 <span className="text-[var(--color-muted-dark)]"> / -{fmtMoney(dailyLossLimitDollars)}</span>
               </span>
             </div>
-            <div className="h-[4px] bg-[var(--color-surface-alt)] rounded-full overflow-hidden">
+            <div className="w-full h-[4px] bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
               <div 
-                className={`h-full rounded-full ${dailyPctUsed! > 70 ? 'bg-[var(--color-loss)]' : 'bg-[var(--color-accent)]'}`} 
-                style={{ width: `${dailyPctUsed}%` }} 
+                className={`h-full rounded-full transition-all duration-500 ease-out ${dailyPctUsed! > 70 ? 'bg-[var(--color-loss)]' : 'bg-[var(--color-accent)]'}`} 
+                style={{ width: `${Math.max(0, Math.min(100, dailyPctUsed || 0))}%` }} 
               />
             </div>
           </div>
@@ -64,10 +64,10 @@ export function DrawdownGauge({
               <span className="text-[var(--color-muted)]">Profit Target</span>
               <span className="font-mono text-[var(--color-text)]">{profitProgressPct.toFixed(1)}%</span>
             </div>
-            <div className="h-[4px] bg-[var(--color-surface-alt)] rounded-full overflow-hidden">
+            <div className="w-full h-[4px] bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
               <div 
-                className="h-full rounded-full bg-[var(--color-profit)]" 
-                style={{ width: `${profitProgressPct}%` }} 
+                className="h-full rounded-full bg-[var(--color-profit)] transition-all duration-500 ease-out" 
+                style={{ width: `${Math.max(0, Math.min(100, profitProgressPct))}%` }} 
               />
             </div>
           </div>
