@@ -10,6 +10,7 @@ import { TradeTable } from '@/components/trades/TradeTable'
 import { Plus } from 'lucide-react'
 import { DashboardClient } from './DashboardClient'
 import { fmtMoney } from '@/lib/calculations'
+import { StatsSidebar } from '@/components/dashboard/StatsSidebar'
 
 import { AccordionApp } from '@/components/ui/card-split-accordion'
 
@@ -73,62 +74,86 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
         ) : (
           <>
-            <div className="flex gap-[14px] flex-wrap">
-              <KPICard label="Net P&L" value={fmtMoney(stats.netPnL)} tone={stats.netPnL >= 0 ? "profit" : "loss"} sub={`${stats.tradesCount} trades logged`} />
-              <KPICard label="Win rate" value={`${stats.winRate.toFixed(1)}%`} sub="of closed trades" trend={winRateTrend} />
-              <KPICard label="Profit factor" value={stats.profitFactor === Infinity ? "∞" : stats.profitFactor.toFixed(2)} sub="gross win ÷ gross loss" />
-              <KPICard label="Expectancy" value={fmtMoney(stats.expectancy)} tone={stats.expectancy >= 0 ? "profit" : "loss"} sub="avg P&L per trade" />
-            </div>
+          <div className="flex flex-col lg:flex-row gap-[24px]">
+            {/* LEFT COLUMN */}
+            <StatsSidebar stats={stats} trades={trades as any} propStatus={propStatus} />
 
-            <div className="flex gap-[14px] flex-wrap">
-              <EquityChart data={chartData} />
-
-              {account.account_type === "prop" && propStatus ? (
-                <div className="flex-[1_1_260px] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[10px] p-[18px_20px] flex flex-col items-center gap-[14px]">
-                  <div className="text-[12px] text-[var(--color-muted)] self-start">MAX DRAWDOWN BUFFER</div>
-                  <DrawdownGauge pctUsed={propStatus.pctBufferUsed} dollarsRemaining={propStatus.bufferRemaining} breach={propStatus.breach} />
-                  <div className="w-full flex flex-col gap-[10px] mt-[4px]">
-                    <div>
-                      <div className="flex justify-between text-[11.5px] text-[var(--color-muted)] mb-[4px]">
-                        <span>Today's P&L / Limit</span>
-                        <span className="font-mono">
-                          <span style={{ color: propStatus.todaysPnL >= 0 ? 'var(--color-profit)' : 'var(--color-loss)' }}>
-                            {fmtMoney(propStatus.todaysPnL)}
-                          </span>
-                          <span className="text-[var(--color-muted-dark)]"> / -{fmtMoney(propStatus.dailyLossLimitDollars)}</span>
-                        </span>
-                      </div>
-                      <div className="h-[5px] bg-[var(--color-border-soft)] rounded-[3px]">
-                        <div 
-                          className="h-[5px] rounded-[3px] transition-all duration-300" 
-                          style={{ width: `${propStatus.dailyPctUsed}%`, background: propStatus.dailyPctUsed > 70 ? 'var(--color-loss)' : 'var(--color-amber)' }} 
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-[11.5px] text-[var(--color-muted)] mb-[4px]">
-                        <span>Profit target</span>
-                        <span className="font-mono">{propStatus.profitProgressPct.toFixed(0)}%</span>
-                      </div>
-                      <div className="h-[5px] bg-[var(--color-border-soft)] rounded-[3px]">
-                        <div 
-                          className="h-[5px] rounded-[3px] transition-all duration-300 bg-[var(--color-profit)]" 
-                          style={{ width: `${propStatus.profitProgressPct}%` }} 
-                        />
-                      </div>
-                    </div>
+            {/* RIGHT COLUMN */}
+            <div className="flex-1 flex flex-col gap-[24px] min-w-0">
+              
+              {/* TOP HEADER / FILTERS */}
+              <div className="flex justify-between items-center bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-[6px] shadow-sm overflow-x-auto hide-scrollbar">
+                <div className="flex items-center gap-[4px]">
+                  {['W', 'M', 'Q', 'All', 'Custom'].map((p, i) => (
+                    <button key={p} className={`px-[16px] py-[6px] rounded-[6px] text-[12.5px] font-medium border-none cursor-pointer transition-colors ${i === 3 ? 'bg-[var(--color-surface-hover)] text-[var(--color-text)]' : 'bg-transparent text-[var(--color-muted)] hover:text-[var(--color-text)]'}`}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-[12px] pr-[8px]">
+                  <div className="flex items-center gap-[6px] text-[12.5px] text-[var(--color-muted)]">
+                    Setup <span className="text-[var(--color-text)]">Swing <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg></span>
+                  </div>
+                  <div className="w-[1px] h-[14px] bg-[var(--color-border)] mx-[4px]" />
+                  <div className="flex items-center gap-[6px] text-[12.5px] text-[var(--color-muted)]">
+                    View by <span className="text-[var(--color-text)]">Auto <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg></span>
                   </div>
                 </div>
-              ) : (
-                <div className="flex-[1_1_260px] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[10px] p-[18px_20px] flex items-center justify-center text-[var(--color-muted-dark)] text-[13px] text-center">
-                  No prop-firm rules apply to a retail account.<br />Switch accounts to view compliance tracking.
-                </div>
-              )}
-            </div>
+              </div>
 
-            <PnLCalendar trades={trades as any} weeks={24} />
-            
-            <TradeTable trades={trades as any} limit={12} />
+              {/* EQUITY CHART & KPI ROW */}
+              <div className="flex flex-col">
+                <EquityChart data={chartData} />
+                
+                {/* INLINE KPI ROW */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-[16px] border-b border-[var(--color-border)] pb-[24px] mt-[24px]">
+                  <div className="flex flex-col gap-[6px]">
+                    <span className="text-[12px] text-[var(--color-muted)]">Winrate</span>
+                    <span className="font-mono text-[14px] text-[var(--color-text)]">{stats.winRate.toFixed(2)}%</span>
+                  </div>
+                  <div className="flex flex-col gap-[6px]">
+                    <span className="text-[12px] text-[var(--color-muted)]">Profit factor</span>
+                    <span className="font-mono text-[14px] text-[var(--color-text)]">{stats.profitFactor === Infinity ? "∞" : stats.profitFactor.toFixed(2)}</span>
+                  </div>
+                  <div className="flex flex-col gap-[6px]">
+                    <span className="text-[12px] text-[var(--color-muted)]">Total trades</span>
+                    <span className="font-mono text-[14px] text-[var(--color-text)]">{stats.tradesCount}</span>
+                  </div>
+                  <div className="flex flex-col gap-[6px]">
+                    <span className="text-[12px] text-[var(--color-muted)]">Expectancy</span>
+                    <span className={`font-mono text-[14px] ${stats.expectancy >= 0 ? 'text-[var(--color-profit)]' : 'text-[var(--color-loss)]'}`}>{fmtMoney(stats.expectancy)}</span>
+                  </div>
+                  <div className="flex flex-col gap-[6px]">
+                    <span className="text-[12px] text-[var(--color-muted)]">PNL</span>
+                    <span className={`font-mono text-[14px] ${stats.netPnL >= 0 ? 'text-[var(--color-profit)]' : 'text-[var(--color-loss)]'}`}>{stats.netPnL >= 0 ? '+' : ''}{fmtMoney(stats.netPnL)} / {stats.netPnL >= 0 ? '+' : ''}{((stats.netPnL / account.start_balance) * 100).toFixed(2)}%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* BOTTOM SPLIT */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-[24px]">
+                {account.account_type === "prop" && propStatus ? (
+                  <DrawdownGauge pctUsed={propStatus.pctBufferUsed} dollarsRemaining={propStatus.bufferRemaining} breach={propStatus.breach} dailyPctUsed={propStatus.dailyPctUsed} dailyLossLimitDollars={propStatus.dailyLossLimitDollars} todaysPnL={propStatus.todaysPnL} profitProgressPct={propStatus.profitProgressPct} />
+                ) : (
+                  <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px] flex flex-col items-center justify-center text-[13px] text-[var(--color-muted-dark)] text-center min-h-[220px]">
+                    No prop-firm rules apply to this retail account.<br />Switch accounts to view compliance tracking.
+                  </div>
+                )}
+                
+                {/* CALENDAR BLOCK */}
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px]">
+                  <div className="flex justify-between items-center mb-[16px]">
+                    <span className="text-[13px] font-medium text-[var(--color-text)]">Heatmap</span>
+                  </div>
+                  <PnLCalendar trades={trades as any} weeks={24} />
+                </div>
+              </div>
+
+              <div className="mt-[10px]">
+                <TradeTable trades={trades as any} limit={12} />
+              </div>
+            </div>
+          </div>
           </>
         )}
       </div>
