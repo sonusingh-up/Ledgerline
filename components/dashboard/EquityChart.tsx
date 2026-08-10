@@ -33,7 +33,14 @@ export function EquityChart({ data }: { data: { x: number, equity: number }[] })
               axisLine={false} 
               tickLine={false} 
               domain={["auto", "auto"]} 
-              tickFormatter={(v) => `${Math.round(v / 1000)}k`} 
+              tickCount={6}
+              tickFormatter={(v) => {
+                if (v >= 1000) {
+                  const k = v / 1000
+                  return Number.isInteger(k) ? `${k}k` : `${k.toFixed(1)}k`
+                }
+                return v
+              }}
             />
             <Tooltip 
               contentStyle={{ background: "var(--color-surface-alt)", border: "1px solid var(--color-border)", borderRadius: 8, fontFamily: "var(--font-ibm-plex-mono)", fontSize: 12 }} 

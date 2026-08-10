@@ -52,9 +52,10 @@ export function Sidebar() {
       <div className="mt-auto">
         <button 
           onClick={handleSignOut}
-          className="flex items-center gap-[9px] w-full bg-transparent border-none text-[var(--color-muted-dark)] text-[13px] p-[9px_12px] cursor-pointer hover:text-[var(--color-text)] transition-colors"
+          className="flex items-center gap-[9px] w-full bg-transparent border-none text-[var(--color-muted-dark)] text-[13px] p-[9px_12px] cursor-pointer hover:text-[var(--color-text)] transition-colors text-left"
         >
-          <LogOut size={15} /> Sign out
+          <LogOut size={15} className="shrink-0" /> 
+          <span className="truncate leading-none pt-[2px]">Sign out</span>
         </button>
       </div>
     </aside>

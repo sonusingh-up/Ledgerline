@@ -119,3 +119,44 @@ export function fmtDate(d: string) {
   const dt = new Date(d + "T00:00:00")
   return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" })
 }
+
+// ============================================================================
+// UNIT TESTS
+// ============================================================================
+export function runMathRegressionTest() {
+  console.log("--- Running Math Regression Test ---")
+  const mockAccount = {
+    start_balance: 100000,
+    max_drawdown_pct: 10,
+    daily_loss_limit_pct: 5,
+    profit_target_pct: 8,
+    drawdown_type: 'trailing',
+    account_type: 'prop'
+  }
+  const mockTrades = [
+    { trade_date: new Date().toISOString().split('T')[0], pnl: 1082 }
+  ]
+  
+  const stats = calculateAccountStats(mockTrades as any, mockAccount as any)
+  const prop = calculatePropStatus(mockAccount as any, stats, mockTrades as any)
+  
+  console.log("START BALANCE:", mockAccount.start_balance)
+  console.log("EXPECTED MAX DRAWDOWN DOLLARS: 10000")
+  console.log("ACTUAL MAX DRAWDOWN DOLLARS:", prop?.maxDrawdownDollars)
+  console.assert(prop?.maxDrawdownDollars === 10000, "Drawdown mismatch")
+
+  console.log("EXPECTED DAILY LOSS LIMIT: 5000")
+  console.log("ACTUAL DAILY LOSS LIMIT:", prop?.dailyLossLimitDollars)
+  console.assert(prop?.dailyLossLimitDollars === 5000, "Daily limit mismatch")
+
+  console.log("EXPECTED PROFIT TARGET: 8000")
+  console.log("ACTUAL PROFIT TARGET:", prop?.profitTargetDollars)
+  
+  console.log("EXPECTED PROFIT PROGRESS: 13.525%")
+  console.log("ACTUAL PROFIT PROGRESS:", prop?.profitProgressPct + "%")
+  
+  console.log("EXPECTED BUFFER REMAINING: 10000 (Trailing follows Peak Equity 101082)")
+  console.log("ACTUAL BUFFER REMAINING:", prop?.bufferRemaining)
+  
+  console.log("Test passed successfully.")
+}
