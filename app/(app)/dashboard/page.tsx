@@ -16,7 +16,7 @@ import { AccordionApp } from '@/components/ui/card-split-accordion'
 
 export const dynamic = 'force-dynamic'
 
-export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ accountId?: string }> }) {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ accountId?: string, date?: string }> }) {
   const params = await searchParams
   const { accounts } = await getAccounts()
   
@@ -40,8 +40,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   
   const { trades } = await getTrades(account.id)
   
+  const selectedDate = params.date || null
   const stats = calculateAccountStats(trades || [], account as any)
-  const propStatus = calculatePropStatus(account as any, stats, trades || [])
+  const propStatus = calculatePropStatus(account as any, stats, trades || [], selectedDate || undefined)
+
+  const tableTrades = selectedDate ? (trades || []).filter(t => t.trade_date === selectedDate) : (trades || [])
 
   const chartData = stats.equityCurve.map((p, i) => ({ x: i, equity: p.equity }))
   const winRateTrend = (trades || []).slice(-10).map((t, i, arr) => {
@@ -145,12 +148,12 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                   <div className="flex justify-between items-center mb-[16px]">
                     <span className="text-[13px] font-medium text-[var(--color-text)]">Heatmap</span>
                   </div>
-                  <PnLCalendar trades={trades as any} weeks={24} />
+                  <PnLCalendar trades={trades as any} weeks={52} account={account as any} selectedDate={selectedDate || undefined} />
                 </div>
               </div>
 
               <div className="mt-[10px]">
-                <TradeTable trades={trades as any} limit={12} />
+                <TradeTable trades={tableTrades as any} limit={12} />
               </div>
             </div>
           </div>

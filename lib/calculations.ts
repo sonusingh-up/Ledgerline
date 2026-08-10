@@ -96,11 +96,24 @@ export function calculatePropStatus(account: Account, stats: KPIStats, trades: T
   }
 }
 
-export function buildPnLCalendarMatrix(trades: Trade[], baseDateIso: string, weeks: number = 6): { [date: string]: number } {
-  const dailyMap: { [date: string]: number } = {}
+export type DailyTooltipData = { pnl: number, tradesCount: number, winRate: number, wins: number }
+
+export function buildDailyTooltipData(trades: Trade[], baseDateIso: string, weeks: number = 52): { [date: string]: DailyTooltipData } {
+  const dailyMap: { [date: string]: DailyTooltipData } = {}
+  
   trades.forEach((t) => { 
-    dailyMap[t.trade_date] = (dailyMap[t.trade_date] || 0) + Number(t.pnl || 0) 
+    if (!dailyMap[t.trade_date]) {
+      dailyMap[t.trade_date] = { pnl: 0, tradesCount: 0, winRate: 0, wins: 0 }
+    }
+    const pnl = Number(t.pnl || 0)
+    dailyMap[t.trade_date].pnl += pnl
+    dailyMap[t.trade_date].tradesCount += 1
+    if (pnl >= 0) {
+      dailyMap[t.trade_date].wins += 1
+    }
+    dailyMap[t.trade_date].winRate = (dailyMap[t.trade_date].wins / dailyMap[t.trade_date].tradesCount) * 100
   })
+  
   return dailyMap
 }
 
