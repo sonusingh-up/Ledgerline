@@ -27,14 +27,14 @@ export function EquityChart({ data }: { data: { x: number, equity: number }[] })
   const domainPadding = (maxEq - minEq) * 0.1
 
   return (
-    <div className="flex-1 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px] flex flex-col shadow-sm">
+    <div className="flex-1 bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[14px] p-[24px] flex flex-col shadow-sm">
       <div className="flex items-center gap-[12px] mb-[12px]">
         <span className="text-[13px] font-medium text-[var(--color-text)]">P&L</span>
         <span className="text-[13px] text-[var(--color-muted)]">Balance</span>
       </div>
       
       <div className="flex items-end gap-[12px] mb-[40px]">
-        <span className="font-display text-[32px] font-bold text-[var(--color-text)] leading-none">{fmtMoney(endEq)}</span>
+        <span className="font-display text-[32px] font-bold text-white leading-none">{fmtMoney(endEq)}</span>
         <span className={`text-[14px] font-mono leading-none mb-[4px] ${isProfit ? 'text-[var(--color-profit)]' : 'text-[var(--color-loss)]'}`}>
           {isProfit ? '+' : ''}{pctChange.toFixed(2)}%
         </span>

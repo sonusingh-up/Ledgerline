@@ -82,7 +82,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             <div className="flex-1 flex flex-col gap-[24px] min-w-0">
               
               {/* TOP HEADER / FILTERS */}
-              <div className="flex justify-between items-center bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-[6px] shadow-sm overflow-x-auto hide-scrollbar">
+              <div className="flex justify-between items-center bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[12px] p-[6px] shadow-sm overflow-x-auto hide-scrollbar">
                 <div className="flex items-center gap-[4px]">
                   {['W', 'M', 'Q', 'All', 'Custom'].map((p, i) => (
                     <button key={p} className={`px-[16px] py-[6px] rounded-[6px] text-[12.5px] font-medium border-none cursor-pointer transition-colors ${i === 3 ? 'bg-[var(--color-surface-hover)] text-[var(--color-text)]' : 'bg-transparent text-[var(--color-muted)] hover:text-[var(--color-text)]'}`}>
@@ -135,13 +135,13 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 {account.account_type === "prop" && propStatus ? (
                   <DrawdownGauge pctUsed={propStatus.pctBufferUsed} dollarsRemaining={propStatus.bufferRemaining} breach={propStatus.breach} dailyPctUsed={propStatus.dailyPctUsed} dailyLossLimitDollars={propStatus.dailyLossLimitDollars} todaysPnL={propStatus.todaysPnL} profitProgressPct={propStatus.profitProgressPct} />
                 ) : (
-                  <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px] flex flex-col items-center justify-center text-[13px] text-[var(--color-muted-dark)] text-center min-h-[220px]">
+                  <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[14px] p-[24px] flex flex-col items-center justify-center text-[13px] text-[var(--color-muted-dark)] text-center min-h-[220px] shadow-sm">
                     No prop-firm rules apply to this retail account.<br />Switch accounts to view compliance tracking.
                   </div>
                 )}
                 
                 {/* CALENDAR BLOCK */}
-                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px]">
+                <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[14px] p-[24px] shadow-sm">
                   <div className="flex justify-between items-center mb-[16px]">
                     <span className="text-[13px] font-medium text-[var(--color-text)]">Heatmap</span>
                   </div>

@@ -19,7 +19,7 @@ export function DrawdownGauge({
 }) {
   
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px] flex flex-col shadow-sm">
+    <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[14px] p-[24px] flex flex-col shadow-sm">
       <div className="flex justify-between items-center mb-[16px]">
         <span className="text-[13px] text-[var(--color-muted)]">Prop Firm Compliance</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-muted-dark)]"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -28,7 +28,7 @@ export function DrawdownGauge({
       <div className="flex flex-col gap-[6px] mb-[24px]">
         <span className="text-[12px] text-[var(--color-muted-dark)]">Max Drawdown Buffer</span>
         <div className="flex items-baseline gap-[6px]">
-          <span className="font-display text-[26px] font-bold text-[var(--color-text)] leading-none">{fmtMoney(dollarsRemaining)}</span>
+          <span className="font-display text-[26px] font-bold text-white leading-none">{fmtMoney(dollarsRemaining)}</span>
           <span className="text-[14px] text-[var(--color-muted-dark)] font-mono leading-none">/ {pctUsed.toFixed(1)}% used</span>
         </div>
         {breach ? (

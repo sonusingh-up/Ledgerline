@@ -46,10 +46,10 @@ export function StatsSidebar({
     <div className="w-full lg:w-[320px] xl:w-[350px] flex flex-col gap-[20px] shrink-0">
       
       {/* Total Account Balance Card */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px] flex justify-between shadow-sm">
+      <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[14px] p-[24px] flex justify-between shadow-sm">
         <div className="flex flex-col max-w-[150px]">
           <span className="text-[13px] text-[var(--color-muted)] mb-[16px]">Total account balance</span>
-          <span className="font-display text-[26px] xl:text-[28px] font-bold text-[var(--color-text)] mb-[12px]">{fmtMoney(stats.endEquity)}</span>
+          <span className="font-display text-[26px] xl:text-[28px] font-bold text-white mb-[12px]">{fmtMoney(stats.endEquity)}</span>
           <span className="text-[12px] text-[var(--color-muted-dark)] leading-[1.4]">{weekChangeText}</span>
         </div>
         <div className="flex flex-col justify-end items-center gap-[6px]">
@@ -57,21 +57,21 @@ export function StatsSidebar({
             {heights.map((h, i) => (
               <div key={i} className="w-[6px] xl:w-[8px] rounded-t-[4px] opacity-20 bg-[var(--color-muted)]" style={{ height: `${h}%` }} />
             ))}
-            <div className="w-[6px] xl:w-[8px] rounded-t-[4px] bg-[var(--color-accent)]" style={{ height: '70%' }} />
+            <div className="w-[6px] xl:w-[8px] rounded-t-[4px] bg-[var(--color-accent)] shadow-[0_0_8px_rgba(110,140,250,0.5)]" style={{ height: '70%' }} />
           </div>
           <div className="flex items-center gap-[4px] xl:gap-[6px] text-[9px] xl:text-[10px] text-[var(--color-muted-dark)] font-mono">
             {days.map((d, i) => (
-              <span key={i} className={i === 6 ? 'text-[var(--color-accent)]' : ''}>{d}</span>
+              <span key={i} className={i === 6 ? 'text-[var(--color-accent)] font-semibold' : ''}>{d}</span>
             ))}
           </div>
         </div>
       </div>
 
       {/* Winrate Card */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px] flex justify-between shadow-sm">
+      <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[14px] p-[24px] flex justify-between shadow-sm">
         <div className="flex flex-col max-w-[140px] xl:max-w-[150px]">
           <span className="text-[13px] text-[var(--color-muted)] mb-[16px]">Winrate</span>
-          <span className="font-display text-[26px] xl:text-[28px] font-bold text-[var(--color-text)] mb-[12px]">{stats.winRate.toFixed(2)}%</span>
+          <span className="font-display text-[26px] xl:text-[28px] font-bold text-white mb-[12px]">{stats.winRate.toFixed(2)}%</span>
           <span className="text-[12px] text-[var(--color-muted-dark)] leading-[1.4]">
             {winningTradesCount} out of {stats.tradesCount} trades were profitable this period.
           </span>
@@ -92,7 +92,7 @@ export function StatsSidebar({
       </div>
 
       {/* Daily Stats Card */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[14px] p-[24px] flex flex-col shadow-sm">
+      <div className="bg-[var(--color-surface-alt)] border border-[var(--color-border-soft)] rounded-[14px] p-[24px] flex flex-col shadow-sm">
         <div className="flex justify-between items-center mb-[16px]">
           <span className="text-[13px] text-[var(--color-muted)] flex items-center gap-[6px]">
             Daily stats <span className="w-[3px] h-[3px] rounded-full bg-[var(--color-muted-dark)]" /> <span className="text-[var(--color-accent)]">{new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric'})}</span>
@@ -101,7 +101,7 @@ export function StatsSidebar({
         </div>
         
         <div className="flex items-end gap-[10px] mb-[24px]">
-          <span className="font-display text-[26px] xl:text-[28px] font-bold text-[var(--color-text)]">
+          <span className={`font-display text-[26px] xl:text-[28px] font-bold ${propStatus && propStatus.todaysPnL < 0 ? 'text-[var(--color-loss)]' : 'text-white'}`}>
             {propStatus ? fmtMoney(propStatus.todaysPnL) : "$0.00"}
           </span>
           {propStatus && propStatus.todaysPnL !== 0 && (
@@ -123,14 +123,14 @@ export function StatsSidebar({
           <div className="flex flex-col gap-[4px]">
             <span className="text-[12px] text-[var(--color-muted-dark)]">Total trades</span>
             <div className="flex items-center gap-[6px]">
-              <span className="text-[13.5px] font-mono text-[var(--color-text)]">{stats.tradesCount}</span>
+              <span className="text-[13.5px] font-mono text-white">{stats.tradesCount}</span>
               <span className="text-[10px] px-[4px] py-[1px] bg-[rgba(79,168,138,0.15)] text-[var(--color-profit)] rounded-[4px]">W {winningTradesCount}</span>
               <span className="text-[10px] px-[4px] py-[1px] bg-[rgba(196,97,74,0.15)] text-[var(--color-loss)] rounded-[4px]">L {stats.tradesCount - winningTradesCount}</span>
             </div>
           </div>
           <div className="flex flex-col gap-[4px]">
             <span className="text-[12px] text-[var(--color-muted-dark)]">Profit Factor</span>
-            <span className="text-[13.5px] font-mono text-[var(--color-text)]">{stats.profitFactor === Infinity ? "∞" : stats.profitFactor.toFixed(2)}</span>
+            <span className="text-[13.5px] font-mono text-white">{stats.profitFactor === Infinity ? "∞" : stats.profitFactor.toFixed(2)}</span>
           </div>
         </div>
       </div>
