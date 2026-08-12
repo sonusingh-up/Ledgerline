@@ -19,9 +19,11 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
     const stored = localStorage.getItem('ledgerline_sidebar_collapsed')
     if (stored !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsCollapsed(stored === 'true')
     }
   }, [])

@@ -5,6 +5,8 @@ import { JournalClient } from './JournalClient'
 import { AmbientBackground } from '@/components/ui/AmbientBackground'
 import { redirect } from 'next/navigation'
 
+import { Suspense } from 'react'
+
 export const dynamic = 'force-dynamic'
 
 export default async function JournalPage() {
@@ -31,10 +33,12 @@ export default async function JournalPage() {
     <div className="relative min-h-screen">
       <AmbientBackground />
       <div className="p-4 lg:p-6 xl:p-8 flex flex-col gap-6 relative z-10">
-        <JournalClient 
-          initialTrades={trades || []} 
-          initialEntries={entries || []} 
-        />
+        <Suspense fallback={<div className="animate-pulse h-96 bg-[var(--color-surface-alt)] rounded-xl"></div>}>
+          <JournalClient 
+            initialTrades={trades || []} 
+            initialEntries={entries || []} 
+          />
+        </Suspense>
       </div>
     </div>
   )

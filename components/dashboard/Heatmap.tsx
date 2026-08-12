@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
-import { motion, Variants } from 'framer-motion'
+import { motion, Variants } from 'motion/react'
 import { useRouter } from 'next/navigation'
 import { Trade, JournalEntry } from '@/lib/types'
 import { fmtMoney, isoDaysAgo } from '@/lib/calculations'

@@ -7,8 +7,12 @@ import { Heatmap } from '@/components/dashboard/Heatmap'
 import { TradeTable } from '@/components/trades/TradeTable'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Target, Award, ListTodo } from 'lucide-react'
 import { fmtMoney } from '@/lib/calculations'
+import { useSearchParams, useRouter } from 'next/navigation'
 
-type ViewMode = 'day' | 'week' | 'month'
+import { ImageLightbox } from '@/components/ui/ImageLightbox'
+import Image from 'next/image'
+
+type ViewMode = 'day' | 'week' | 'month' | 'list'
 
 interface JournalClientProps {
   initialTrades: Trade[]
@@ -16,14 +20,27 @@ interface JournalClientProps {
 }
 
 export function JournalClient({ initialTrades, initialEntries }: JournalClientProps) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const dateParam = searchParams.get('date')
+
   const [viewMode, setViewMode] = useState<ViewMode>('day')
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0])
+  const [selectedDate, setSelectedDate] = useState<string>(dateParam || new Date().toISOString().split('T')[0])
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
+
+  // Update URL when date changes
+  const handleDateChange = (newDate: string) => {
+    setSelectedDate(newDate)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('date', newDate)
+    router.replace(`?${params.toString()}`)
+  }
 
   // Helpers for navigation
   const navigateDay = (offset: number) => {
     const d = new Date(selectedDate)
     d.setUTCDate(d.getUTCDate() + offset)
-    setSelectedDate(d.toISOString().split('T')[0])
+    handleDateChange(d.toISOString().split('T')[0])
   }
 
   // --- DAY VIEW DATA ---
@@ -89,7 +106,7 @@ export function JournalClient({ initialTrades, initialEntries }: JournalClientPr
         </div>
 
         <div className="flex items-center bg-[var(--color-surface-alt)] p-1 rounded-lg border border-[var(--color-border)] shadow-sm">
-          {(['day', 'week', 'month'] as ViewMode[]).map(mode => (
+          {(['day', 'week', 'month', 'list'] as ViewMode[]).map(mode => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
@@ -116,7 +133,7 @@ export function JournalClient({ initialTrades, initialEntries }: JournalClientPr
             <input 
               type="date" 
               value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              onChange={(e) => handleDateChange(e.target.value)}
               className="bg-transparent border-none text-white font-mono font-bold outline-none text-center cursor-pointer"
             />
             <button onClick={() => navigateDay(1)} className="p-1 text-[var(--color-muted)] hover:text-white transition-colors">
@@ -186,7 +203,7 @@ export function JournalClient({ initialTrades, initialEntries }: JournalClientPr
               <div 
                 key={d.date} 
                 onClick={() => {
-                  setSelectedDate(d.date)
+                  handleDateChange(d.date)
                   setViewMode('day')
                 }}
                 className={`flex flex-col gap-3 p-4 rounded-xl border transition-all cursor-pointer hover:-translate-y-1 ${
@@ -250,6 +267,70 @@ export function JournalClient({ initialTrades, initialEntries }: JournalClientPr
         </div>
       )}
 
+      {viewMode === 'list' && (
+        <div className="flex flex-col gap-6">
+          {initialEntries.length === 0 ? (
+            <div className="text-center p-12 text-[var(--color-muted-dark)] bg-[var(--color-surface-alt)]/80 rounded-xl border border-[var(--color-border-soft)]">
+              No journal entries found. Start journaling in the Day view!
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {initialEntries.map(entry => {
+                const entryTrades = initialTrades.filter(t => t.trade_date === entry.entry_date)
+                const pnl = entryTrades.reduce((sum, tr) => sum + Number(tr.pnl || 0), 0)
+                
+                return (
+                  <div key={entry.id} className="bg-[var(--color-surface-alt)]/80 backdrop-blur-md border border-[var(--color-border-soft)] rounded-xl p-5 shadow-sm flex flex-col gap-4">
+                    <div className="flex items-center justify-between border-b border-[var(--color-border-soft)] pb-3">
+                      <div className="flex items-center gap-3">
+                        <CalendarIcon size={16} className="text-[var(--color-muted)]" />
+                        <span className="font-bold font-mono text-sm text-[var(--color-text)]">
+                          {new Date(entry.entry_date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {entryTrades.length > 0 && (
+                          <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-[var(--color-profit)]' : 'text-[var(--color-loss)]'}`}>
+                            {pnl >= 0 ? '+' : ''}{fmtMoney(pnl)} ({entryTrades.length} trades)
+                          </span>
+                        )}
+                        <button 
+                          onClick={() => {
+                            handleDateChange(entry.entry_date)
+                            setViewMode('day')
+                          }}
+                          className="px-3 py-1 bg-[var(--color-surface)] border border-[var(--color-border)] hover:bg-[var(--color-surface-hover)] text-[var(--color-text)] text-xs font-semibold rounded-md transition-colors"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {entry.content && (
+                      <p className="text-sm text-[var(--color-muted)] leading-relaxed whitespace-pre-wrap font-body">
+                        {entry.content}
+                      </p>
+                    )}
+                    
+                    {entry.image_url && (
+                      <div 
+                        className="relative w-48 h-32 rounded-lg overflow-hidden border border-[var(--color-border)] cursor-zoom-in hover:opacity-90 transition-opacity"
+                        onClick={() => setLightboxUrl(entry.image_url)}
+                      >
+                        <Image src={entry.image_url} alt="Journal Attachment" fill className="object-cover" />
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {lightboxUrl && (
+        <ImageLightbox imageUrl={lightboxUrl} onClose={() => setLightboxUrl(null)} />
+      )}
     </div>
   )
 }

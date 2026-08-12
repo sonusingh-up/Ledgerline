@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, useTransition } from 'react'
 import { JournalEntry, Trade } from '@/lib/types'
-import { upsertJournalEntry } from '@/actions/journal'
-import { Save, Frown, Meh, Smile, Target, Zap, Clock } from 'lucide-react'
+import { upsertJournalEntry, uploadJournalImage } from '@/actions/journal'
+import { Save, Frown, Meh, Smile, Target, Zap, Clock, ImageIcon, X } from 'lucide-react'
 import { fmtMoney } from '@/lib/calculations'
+import Image from 'next/image'
+import { ImageLightbox } from '@/components/ui/ImageLightbox'
 
 interface JournalEditorProps {
   date: string
@@ -16,6 +18,9 @@ interface JournalEditorProps {
 export function JournalEditor({ date, initialEntry, trades, title }: JournalEditorProps) {
   const [content, setContent] = useState(initialEntry?.content || '')
   const [mood, setMood] = useState<number | null>(initialEntry?.mood || null)
+  const [imageUrl, setImageUrl] = useState<string | null>(initialEntry?.image_url || null)
+  const [file, setFile] = useState<File | null>(null)
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle')
 
@@ -23,13 +28,33 @@ export function JournalEditor({ date, initialEntry, trades, title }: JournalEdit
   useEffect(() => {
     setContent(initialEntry?.content || '')
     setMood(initialEntry?.mood || null)
+    setImageUrl(initialEntry?.image_url || null)
+    setFile(null)
     setSaveStatus('idle')
   }, [date, initialEntry])
 
   const handleSave = () => {
     setSaveStatus('idle')
     startTransition(async () => {
-      const res = await upsertJournalEntry(date, content, mood || undefined)
+      let finalImageUrl = imageUrl
+      
+      // Upload file if selected
+      if (file) {
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await uploadJournalImage(formData)
+        if (res.error) {
+          setSaveStatus('error')
+          return
+        }
+        if (res.publicUrl) {
+          finalImageUrl = res.publicUrl
+          setImageUrl(finalImageUrl) // update local state
+          setFile(null) // clear file selection
+        }
+      }
+
+      const res = await upsertJournalEntry(date, content, mood || undefined, finalImageUrl || undefined)
       if (res.error) {
         setSaveStatus('error')
       } else {
@@ -37,6 +62,12 @@ export function JournalEditor({ date, initialEntry, trades, title }: JournalEdit
         setTimeout(() => setSaveStatus('idle'), 3000)
       }
     })
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0])
+    }
   }
 
   // Derived stats from the day's trades
@@ -82,6 +113,19 @@ export function JournalEditor({ date, initialEntry, trades, title }: JournalEdit
                 <m.icon size={16} />
               </button>
             ))}
+            <div className="w-[1px] h-4 bg-[var(--color-border-soft)] mx-1"></div>
+            <label 
+              title="Attach Image"
+              className="p-1.5 rounded-md transition-all text-[var(--color-muted-dark)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-hover)] cursor-pointer"
+            >
+              <ImageIcon size={16} />
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                onChange={handleFileSelect}
+              />
+            </label>
           </div>
         </div>
 
@@ -92,6 +136,29 @@ export function JournalEditor({ date, initialEntry, trades, title }: JournalEdit
             placeholder="How did the session go? Any mistakes? Were rules followed?"
             className="w-full min-h-[140px] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-3.5 text-sm text-[var(--color-text)] font-body outline-none focus-visible:border-[var(--color-accent)] transition-colors resize-y leading-relaxed"
           />
+          
+          {(file || imageUrl) && (
+            <div className="mt-3 relative w-32 h-24 rounded-lg overflow-hidden border border-[var(--color-border)] group cursor-zoom-in" onClick={() => {
+              if (file) setLightboxUrl(URL.createObjectURL(file))
+              else if (imageUrl) setLightboxUrl(imageUrl)
+            }}>
+              {file ? (
+                <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover" />
+              ) : imageUrl ? (
+                <Image src={imageUrl} alt="Attached" fill className="object-cover" />
+              ) : null}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setFile(null)
+                  setImageUrl(null)
+                }}
+                className="absolute top-1 right-1 p-1 bg-black/60 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X size={12} />
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
@@ -152,6 +219,10 @@ export function JournalEditor({ date, initialEntry, trades, title }: JournalEdit
           </div>
         )}
       </div>
+
+      {lightboxUrl && (
+        <ImageLightbox imageUrl={lightboxUrl} onClose={() => setLightboxUrl(null)} />
+      )}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
 import { fmtMoney } from '@/lib/calculations'
 import { Trophy, CheckCircle2 } from 'lucide-react'

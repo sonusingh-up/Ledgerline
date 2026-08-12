@@ -68,6 +68,7 @@ export function Sidebar() {
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: NotebookPen, label: 'Journal', href: '/journal' },
     { icon: BookOpen, label: 'Trade Log', href: '/trades' },
+    { icon: BarChart3, label: 'Strategy', href: '/strategy' },
     { icon: Shield, label: 'Accounts', href: '/accounts' },
     { icon: Settings, label: 'Settings', href: '/settings' },
   ]

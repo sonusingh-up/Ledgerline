@@ -23,6 +23,7 @@ create table if not exists journal_entries (
   user_id uuid not null references auth.users(id) on delete cascade,
   entry_date date not null,
   content text,
+  image_url text,
   mood smallint check (mood between 1 and 5),
   created_at timestamptz default now(),
   updated_at timestamptz default now(),

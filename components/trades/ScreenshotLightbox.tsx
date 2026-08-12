@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { X, Loader2 } from 'lucide-react'
 import { getTradeScreenshotUrl } from '@/actions/trades'
 
@@ -17,6 +17,7 @@ export function ScreenshotLightbox({ screenshotPath, onClose }: ScreenshotLightb
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
     const fetchUrl = async () => {
       const res = await getTradeScreenshotUrl(screenshotPath)

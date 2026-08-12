@@ -83,6 +83,7 @@ export interface JournalEntry {
   user_id: string
   entry_date: string
   content: string | null
+  image_url: string | null
   mood: number | null
   created_at: string
   updated_at: string

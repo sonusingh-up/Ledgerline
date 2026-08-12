@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { X, AlertTriangle } from 'lucide-react'
 import { createTrade, uploadTradeScreenshot } from '@/actions/trades'
 import { ScreenshotUpload } from './ScreenshotUpload'
@@ -57,6 +57,7 @@ export function LogTradeModal({
   const [file, setFile] = useState<File | null>(null)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true)
   }, [])
 
@@ -257,7 +258,7 @@ export function LogTradeModal({
                   <span className="font-semibold">Possible fat-finger entry</span>
                   <span className="text-[var(--color-muted)] leading-relaxed">{fatFingerWarning}</span>
                   {dismissed && (
-                    <span className="text-[var(--color-accent)] font-medium mt-0.5">Click "Save" again to confirm this is correct.</span>
+                    <span className="text-[var(--color-accent)] font-medium mt-0.5">Click &quot;Save&quot; again to confirm this is correct.</span>
                   )}
                 </div>
               </div>

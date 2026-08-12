@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
 
 export interface AmbientBackgroundProps {
@@ -17,11 +17,11 @@ export interface AmbientBackgroundProps {
 }
 
 export function AmbientBackground({
-  color1 = '#0E141B', // Dark Charcoal / Obsidian
-  color2 = '#173328', // Deep Emerald Green (Brand Profit Dim)
-  color3 = '#1B263B', // Deep Slate Blue (Brand Accent Dim)
+  color1 = '#09090B', // Deepest background
+  color2 = '#152518', // Deep Emerald Green (Brand Profit Dim)
+  color3 = '#10151C', // Deep Slate Blue (Brand Accent Dim)
   opacity = 0.85,
-  brightness = 0.8,
+  brightness = 0.6, // slightly darker
   uSpeed = 0.01,
   cSpeed = 0.01,
   className = '',
